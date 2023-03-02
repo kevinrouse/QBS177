@@ -1,0 +1,77 @@
+---
+title: "Joe Preprocessing"
+author: "Joe Gyorda"
+date: "2023-02-26"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(lubridate)
+library(psych)
+```
+
+```{r Read Data}
+setwd('/users/joegyorda/Desktop/QBS_121/sadhub/')
+
+# demographic and depression info
+scores = read.csv('Raw data/scores.csv')
+
+# make list of file names within each directory - to be used later
+condition_names = paste("condition_",1:23,".csv",sep="") # 23 cases
+control_names = paste("control_",1:32,".csv",sep="") # 32 controls
+
+# function that reads in CSV for each person, converts the date into a parseable
+# format, aggregates all minute-by-minute activity data into daily activity
+# data, and returns summary statistics for a given person's daily activity 
+# group is either 'condition' or 'control', name is from condition_names or 
+# control names 
+get_activity_data = function(group,name) {
+  print(paste('Raw data/',group,'/',name,sep=''))
+  d = read.csv(paste('Raw data/',group,'/',name,sep='')) # path to activity data
+  d$timestamp = lubridate::ymd_hms(d$timestamp) # extract date info
+  d$year = lubridate::year(d$timestamp)
+  d$month = lubridate::month(d$timestamp)
+  d$day = lubridate::day(d$timestamp)
+  d$hour = lubridate::hour(d$timestamp)
+  d$minute = lubridate::minute(d$timestamp)
+  
+  # daily aggregation of activity
+  d2 = d %>% 
+    group_by(date,year,month,day) %>% 
+    summarise(activity = sum(activity))
+  
+  # return the mean, median, sd, and RMSSD of daily activity (and year)
+  results = c(mean(d2$activity), median(d2$activity), sd(d2$activity), 
+              psych::rmssd(d2$activity), d2$year[1])
+              
+  return(results)
+}
+```
+
+```{r Read in activity data, return preprocessed data}
+
+# create dummy matrix in which to store preprocessed activity data
+activity_data = matrix(NA, ncol=5,nrow=nrow(scores))
+colnames(activity_data) = c("Mean_Daily_Activity","Median_Daily_Activity",
+                            "SD_Daily_Activity","RMSSD_Daily_Activity","Year")
+
+# call function for cases
+for (i in 1:length(condition_names)) {
+  activity_data[i,] = get_activity_data('condition',condition_names[i])
+}
+
+# call function for controls
+for (i in 1:length(control_names)) {
+  activity_data[i+23,] = get_activity_data('control',control_names[i])
+}
+
+# combine preprocessed activity data with existing scores data and write to directory
+preprocessed_data = cbind(scores,activity_data)
+write.csv(preprocessed_data,'/users/joegyorda/Desktop/QBS_121/sadhub/preprocessed_data.csv')
+```
+
+To do:
+- would make sense to perform MICE on the activity data since some people have values of 0 at the daily or hourly level. Can do this and use the resulting datasets to rerun the downstream regression analyses and compare results. 
+
