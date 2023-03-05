@@ -37,3 +37,11 @@ dim(X.select)
 summary(lm(Y ~ X.select))
 ```
 Variables are Age, education level, total members, durbale asset,no lasting function
+
+
+```{r}
+#What to put into regressions as x
+x <- 'Ville_id + Age + education_level + total_members + durable_asset + no_lasting_investmen'
+summary(glm(depressed~Ville_id + Age + education_level + total_members + durable_asset + no_lasting_investmen, data =dep))
+```
+
