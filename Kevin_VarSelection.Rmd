@@ -1,0 +1,39 @@
+---
+title: "Final Proj step/lasso"
+output: html_document
+date: "2023-03-05"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("/Users/kevinrouse78/Desktop/QBS 121/sadhub")
+```
+
+```{r}
+dep <- read.csv('b_depressed.csv')
+```
+
+#Perform Backwards stepwise regression for variable determination
+```{r}
+o <- glm(depressed ~ ., data = dep)
+step(o, direction = 'backward')
+```
+#Variables remaining: Ville ID, Age, Education Level, Total Members
+```{r}
+library(glmnet)
+Y = dep[,23]
+X = makeX(dep[,-23],na.impute=T)
+library(glmnet)
+(o.lasso <- glmnet(y=Y, x=X, family="binomial"))
+plot(o.lasso)
+
+(o.cv.lasso <- cv.glmnet(y=Y, x=X, family="binomial"))
+plot(o.cv.lasso)
+summary(o.cv.lasso)
+
+X.select <- X[, o.lasso$beta[, o.lasso$lambda == o.cv.lasso$lambda.min] != 0]
+
+dim(X.select)
+summary(lm(Y ~ X.select))
+```
+Variables are Age, education level, total members, durbale asset,no lasting function
