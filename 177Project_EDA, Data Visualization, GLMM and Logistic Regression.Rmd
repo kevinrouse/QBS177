@@ -216,7 +216,7 @@ summary(model)
 ## GLMM2 + Logistic Regression
 ```{r}
 # Load the data
-depression <- read.csv('/Users/rumsoar/Downloads/sadhub-main/b_depressed.csv')
+depression <- read.csv('/Users/sadhub-main/b_depressed.csv')
 
 # Count the number of NAs in each column
 colSums(is.na(depression))
