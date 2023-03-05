@@ -36,7 +36,7 @@ X.select <- X[, o.lasso$beta[, o.lasso$lambda == o.cv.lasso$lambda.min] != 0]
 dim(X.select)
 summary(lm(Y ~ X.select))
 ```
-Variables are Age, education level, total members, durbale asset,no lasting function
+Variables are Age, education level, total members,no lasting function
 
 
 ```{r}
