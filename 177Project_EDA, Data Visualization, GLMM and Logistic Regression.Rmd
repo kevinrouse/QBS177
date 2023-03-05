@@ -1,0 +1,361 @@
+---
+title: "Data Visualization, GLM"
+output: pdf_document
+date: "2023-03-05"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## EDA + Data Visualization
+
+```{r cars}
+# Load necessary libraries
+library(dplyr)
+library(tidyr)
+```
+```{r}
+depression <- read.csv('/Users/sadhub-main/b_depressed.csv')
+```
+
+
+```{r}
+# Check the structure of the dataset
+str(depression)
+
+```
+
+```{r}
+# Summary statistics
+summary(depression)
+```
+
+### Correlation Matrix
+```{r}
+
+library(corrplot)
+
+# Distribution of 'depressed' variable
+table(depression$depressed)
+
+
+# Select the numeric variables from the train dataset
+numeric_vars <- sapply(train, is.numeric)
+
+# Calculate the correlation matrix
+corr_matrix <- cor(train[, numeric_vars])
+
+# Sort the correlations by the 'depressed' variable
+corr_depressed <- corr_matrix[, "depressed"]
+corr_sorted <- sort(corr_depressed, decreasing = TRUE)
+
+# Select the top 10 variables with high correlation to 'depressed'
+top10_vars <- names(corr_sorted)[2:11]
+
+# Print the top 10 variables
+print(top10_vars)
+
+# Create a correlation plot
+corrplot(corr_matrix, method = "color", type = "upper", order = "hclust",
+         tl.col = "black", tl.srt = 45, diag = FALSE)
+
+
+
+
+
+```
+### Data Visualization
+```{r}
+library(ggplot2)
+# Create a color palette for the plots
+color_palette <- c("#009E73", "#0072B2", "#D55E00", "#CC79A7")
+
+# Age: distribution
+hist(depression$Age, col = color_palette[1], main = "Age Distribution",
+     xlab = "Age", ylab = "Frequency")
+
+# Age vs. Number of children with colors
+plot(depression$Age, depression$Number_children, col = color_palette[2], 
+     main = "Age vs. Number of Children",
+     xlab = "Age", ylab = "Number of Children")
+abline(lm(Number_children ~ Age, data = depression), col = color_palette[3], lwd = 2)
+
+
+# Age distribution by sex and depression status
+ggplot(depression, aes(x = Age, fill = factor(depressed))) +
+  geom_histogram(position = "identity", alpha = 0.5, bins = 20) +
+  facet_wrap(~ sex, ncol = 1) +
+  scale_fill_discrete(name = "Depressed", labels = c("No", "Yes")) +
+  labs(x = "Age", y = "Count") +
+  ggtitle("Age distribution by sex and depression status") +
+  theme_classic() +
+  theme(plot.title = element_text(face = "bold", hjust = 0.5))
+
+
+
+
+
+
+```
+
+
+
+```{r}
+library(ggplot2)
+
+
+# Proportion of depressed individuals by education level and sex
+ggplot(depression, aes(x = factor(education_level), fill = factor(depressed))) +
+  geom_bar(position = "fill", alpha = 0.8) +
+  facet_wrap(~ sex, ncol = 1) +
+  scale_fill_discrete(name = "Depressed", labels = c("No", "Yes")) +
+  labs(x = "Education Level", y = "Proportion") +
+  ggtitle("Proportion of depressed individuals by education level and sex") +
+  theme_classic() +
+  theme(plot.title = element_text(face = "bold", hjust = 0.5))
+
+# Number of children by depressed status and sex
+ggplot(depression, aes(x = Number_children, fill = factor(depressed))) +
+  geom_bar(alpha = 0.8) +
+  facet_wrap(~ sex, ncol = 1) +
+  scale_fill_discrete(name = "Depressed", labels = c("No", "Yes")) +
+  ggtitle("Number of children by depressed status and sex") +
+  labs(x = "Number of Children", y = "Count") +
+  theme_classic() +
+  theme(plot.title = element_text(face = "bold", hjust = 0.5))
+
+# Distribution of durable assets by depressed status and sex
+ggplot(depression, aes(x = durable_asset, fill = factor(depressed))) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~ sex, ncol = 1) +
+  scale_fill_discrete(name = "Depressed", labels = c("No", "Yes")) +
+  labs(x = "Durable Asset", y = "Density") +
+  ggtitle("Distribution of durable assets by depressed status and sex") +
+  theme_classic() +
+  theme(plot.title = element_text(face = "bold", hjust = 0.5))
+
+
+
+# Distribution of living expenses by depressed status and sex
+ggplot(depression, aes(x = living_expenses, fill = factor(depressed))) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~ sex, ncol = 1) +
+  scale_fill_discrete(name = "Depressed", labels = c("No", "Yes")) +
+  labs(x = "Living Expenses", y = "Density") +
+  ggtitle("Distribution of living expenses by depressed status and sex") +
+  theme_classic() +
+  theme(plot.title = element_text(face = "bold", hjust = 0.5))
+
+# Distribution of incoming agricultural income by depressed status and sex
+ggplot(depression, aes(x = incoming_agricultural, fill = factor(depressed))) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~ sex, ncol = 1) +
+  scale_fill_discrete(name = "Depressed", labels = c("No", "Yes")) +
+  labs(x = "Incoming Agricultural Income", y = "Density") +
+  ggtitle("Distribution of incoming agricultural income by depressed status and sex") +
+  theme_classic() +
+  theme(plot.title = element_text(face = "bold", hjust = 0.5))
+
+
+```
+
+```{r}
+# Scatterplot of 'Age' and 'Number_children' colored by 'depressed'
+ggplot(depression, aes(x = Age, y = Number_children, color = factor(depressed))) +
+  geom_point() +
+  labs(title = "Age vs Number of Children", x = "Age", y = "Number of Children", color = "Depressed") +
+  theme_minimal()
+
+# Boxplot of 'education_level' colored by 'depressed'
+ggplot(depression, aes(x = factor(depressed), y = education_level, fill = factor(depressed))) +
+  geom_boxplot() +
+  labs(title = "Education Level by Depression Status", x = "Depressed", y = "Education Level", fill = "Depressed") +
+  theme_classic()
+
+# Density plot of 'gained_asset' colored by 'depressed'
+ggplot(depression, aes(x = gained_asset, fill = factor(depressed))) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Density Plot of Gained Asset by Depression Status", x = "Gained Asset", fill = "Depressed") +
+  theme_minimal()
+
+# Barplot of 'incoming_salary' colored by 'depressed'
+ggplot(depression, aes(x = factor(incoming_salary), fill = factor(depressed))) +
+  geom_bar() +
+  labs(title = "Barplot of Incoming Salary by Depression Status", x = "Incoming Salary", fill = "Depressed") +
+  theme_classic()
+
+# Stacked barplot of 'Married' and 'depressed'
+ggplot(depression, aes(x = factor(Married), fill = factor(depressed))) +
+  geom_bar(position = "stack") +
+  labs(title = "Stacked Barplot of Marital Status and Depression Status", x = "Marital Status", fill = "Depressed") +
+  theme_classic()
+
+```
+
+
+## GLMM1
+```{r}
+library(lme4)
+
+# Standardize continuous predictor variables
+depression[, c("Age", "Number_children", "education_level", "gained_asset", "durable_asset", "save_asset", "living_expenses", "other_expenses", "incoming_agricultural", "farm_expenses", "lasting_investment", "no_lasting_investmen")] <- scale(depression[, c("Age", "Number_children", "education_level", "gained_asset", "durable_asset", "save_asset", "living_expenses", "other_expenses", "incoming_agricultural", "farm_expenses", "lasting_investment", "no_lasting_investmen")])
+
+# Fit GLMM with selected predictors
+model <- glmer(depressed ~ sex + Age + Married + education_level + gained_asset + 
+               save_asset + living_expenses + incoming_salary + incoming_agricultural + 
+               labor_primary + (1 | Ville_id) + (1 | Survey_id), 
+               data = depression, family = binomial())
+
+# Check model summary
+summary(model)
+
+```
+
+
+## GLMM2 + Logistic Regression
+```{r}
+# Load the data
+depression <- read.csv('/Users/rumsoar/Downloads/sadhub-main/b_depressed.csv')
+
+# Count the number of NAs in each column
+colSums(is.na(depression))
+
+
+# Convert categorical variables to factors
+depression$sex <- as.factor(depression$sex)
+depression$Married <- as.factor(depression$Married)
+depression$education_level <- as.factor(depression$education_level)
+```
+
+
+
+```{r}
+
+depression <- depression %>%
+  drop_na()
+# Load required packages
+library(mice)
+library(lme4)
+library(caret)
+
+# Load and preprocess the depression dataset
+
+depression_new <- depression
+pred_matrix <- mice::make.predictorMatrix(depression_new)
+imp <- mice(depression_new, m = 5, maxit = 50, seed = 123, predictorMatrix = pred_matrix)
+depression_imp <- complete(imp)
+
+
+```
+
+```{r}
+
+# Convert Married column into factor with numeric levels
+depression_imp$Married <- factor(depression_imp$Married, levels = c("No", "Yes"))
+depression_imp$Married <- as.numeric(depression_imp$Married) - 1
+
+# Convert education_level column into factor with numeric levels
+depression_imp$education_level <- factor(depression_imp$education_level, levels = c("No formal education", "Primary", "Secondary", "Vocational/Specialised training", "Tertiary"))
+depression_imp$education_level <- as.numeric(depression_imp$education_level) - 1
+
+# Convert all other columns into numeric
+depression_imp[, c(4:22)] <- apply(depression_imp[, c(4:22)], 2, as.numeric)
+
+
+# Scale numeric variables
+
+depression_imp[, c(4:22)] <- scale(depression_imp[, c(4:22)])
+
+
+
+# Perform feature selection using glmnet
+x <- as.matrix(train[, c(3:20)])
+y <- train$depressed
+cv.fit <- cv.glmnet(x, y, family = "binomial", alpha = 1, nfolds = 10)
+bestlam <- cv.fit$lambda.min
+glm.fit <- glmnet(x, y, family = "binomial", alpha = 1, lambda = bestlam)
+coef(glm.fit)
+
+# Build a GLMM model
+model <- glmer(depressed ~ sex + Age + Married + education_level + gained_asset + 
+                   durable_asset + save_asset + living_expenses + other_expenses + incoming_salary + 
+                   incoming_own_farm + incoming_business + incoming_no_business + 
+                   incoming_agricultural + farm_expenses + labor_primary + lasting_investment + 
+                   no_lasting_investmen + (1 | Ville_id) + (1 | Survey_id), 
+                   data = train, family = binomial())
+
+summary(model)
+```
+
+
+
+
+```{r}
+# Fit a logistic regression model with LASSO regularization using caret package
+ctrl <- trainControl(method = "cv", number = 5)
+glm.fit <- glm(depressed ~ sex + Age + education_level + save_asset + 
+               durable_asset + incoming_salary + farm_expenses, 
+               family = binomial(), data = train)
+significant_features <- names(coef(glm.fit)[-1][coef(glm.fit)[-1] < 0.05])
+
+
+```
+
+```{r}
+# Build a logistic regression model with the significant features
+glm.fit2 <- glm(depressed ~ education_level + incoming_salary + farm_expenses, family = binomial(), data = train)
+
+# Print the model summary
+summary(glm.fit2)
+
+
+# Predict the class probabilities for the test set
+predicted_probs <- predict(glm.fit2, newdata = test, type = "response")
+
+# Convert the class probabilities to class labels
+predicted_classes <- ifelse(predicted_probs > 0.5, 1, 0)
+
+# Calculate the accuracy of the model
+accuracy <- mean(predicted_classes == test$depressed)
+cat("Accuracy:", accuracy, "\n")
+
+# Calculate the R squared of the model
+rsq <- 1 - (sum((test$depressed - predicted_probs)^2) / sum((test$depressed - mean(test$depressed))^2))
+cat("R Squared:", rsq, "\n")
+```
+
+
+
+
+
+```{r}
+# Recode binary variables to 0/1
+depression$sex <- as.factor(ifelse(depression$sex == 1, 0, 1))
+depression$Married <- as.factor(ifelse(depression$Married == 1, 0, 1))
+depression$labor_primary <- as.factor(ifelse(depression$labor_primary == 1, 0, 1))
+
+# Convert remaining variables to factors
+depression$education_level <- as.factor(depression$education_level)
+depression$Number_children <- as.factor(depression$Number_children)
+
+# Scale numeric variables
+depression[,c("Age", "gained_asset", "durable_asset", "save_asset", "living_expenses", 
+              "other_expenses", "incoming_salary", "incoming_own_farm", "incoming_business", 
+              "incoming_no_business", "incoming_agricultural", "farm_expenses", 
+              "lasting_investment", "no_lasting_investmen")] <- scale(depression[,c("Age", 
+              "gained_asset", "durable_asset", "save_asset", "living_expenses", "other_expenses", 
+              "incoming_salary", "incoming_own_farm", "incoming_business", "incoming_no_business", 
+              "incoming_agricultural", "farm_expenses", "lasting_investment", "no_lasting_investmen")])
+
+# One-hot encode categorical variables
+depression <- depression %>%
+  mutate_if(is.factor, as.character) %>%
+  mutate(across(everything(), factor)) %>%
+  select(-c(Ville_id)) %>%
+  pivot_wider(names_from = c("Number_children", "education_level"), 
+              values_from = c("gained_asset", "durable_asset", "save_asset", "living_expenses", 
+                              "other_expenses", "incoming_salary", "incoming_own_farm", 
+                              "incoming_business", "incoming_no_business", "incoming_agricultural", 
+                              "farm_expenses", "lasting_investment", "no_lasting_investmen"))
+```
