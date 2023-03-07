@@ -1,0 +1,255 @@
+---
+title: "177Project"
+output: pdf_document
+date: "2023-03-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## EDA + Data Visualization
+
+```{r cars}
+# Load necessary libraries
+library(dplyr)
+library(tidyr)
+```
+
+
+```{r}
+depression <- read.csv('/Users/sadhub-main/b_depressed.csv')
+```
+
+
+```{r}
+# Check the structure of the dataset
+str(depression)
+```
+
+
+## Data Visualization
+```{r}
+library(ggplot2)
+# Create a color palette for the plots
+color_palette <- c("#009E73", "#0072B2", "#D55E00", "#CC79A7")
+
+# Age: distribution
+hist(depression$Age, col = color_palette[1], main = "Age Distribution",
+     xlab = "Age", ylab = "Frequency")
+
+# Age vs. Number of children with colors
+plot(depression$Age, depression$Number_children, col = color_palette[2], 
+     main = "Age vs. Number of Children",
+     xlab = "Age", ylab = "Number of Children")
+abline(lm(Number_children ~ Age, data = depression), col = color_palette[3], lwd = 2)
+
+
+# Age distribution by sex and depression status
+ggplot(depression, aes(x = Age, fill = factor(depressed))) +
+  geom_histogram(position = "identity", alpha = 0.5, bins = 20) +
+  facet_wrap(~ sex, ncol = 1) +
+  scale_fill_discrete(name = "Depressed", labels = c("No", "Yes")) +
+  labs(x = "Age", y = "Count") +
+  ggtitle("Age distribution by sex and depression status") +
+  theme_classic() +
+  theme(plot.title = element_text(face = "bold", hjust = 0.5))
+
+
+
+
+
+
+```
+
+
+
+```{r}
+library(ggplot2)
+
+
+# Proportion of depressed individuals by education level and sex
+ggplot(depression, aes(x = factor(education_level), fill = factor(depressed))) +
+  geom_bar(position = "fill", alpha = 0.8) +
+  facet_wrap(~ sex, ncol = 1) +
+  scale_fill_discrete(name = "Depressed", labels = c("No", "Yes")) +
+  labs(x = "Education Level", y = "Proportion") +
+  ggtitle("Proportion of depressed individuals by education level and sex") +
+  theme_classic() +
+  theme(plot.title = element_text(face = "bold", hjust = 0.5))
+
+# Number of children by depressed status and sex
+ggplot(depression, aes(x = Number_children, fill = factor(depressed))) +
+  geom_bar(alpha = 0.8) +
+  facet_wrap(~ sex, ncol = 1) +
+  scale_fill_discrete(name = "Depressed", labels = c("No", "Yes")) +
+  ggtitle("Number of children by depressed status and sex") +
+  labs(x = "Number of Children", y = "Count") +
+  theme_classic() +
+  theme(plot.title = element_text(face = "bold", hjust = 0.5))
+
+# Distribution of durable assets by depressed status and sex
+ggplot(depression, aes(x = durable_asset, fill = factor(depressed))) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~ sex, ncol = 1) +
+  scale_fill_discrete(name = "Depressed", labels = c("No", "Yes")) +
+  labs(x = "Durable Asset", y = "Density") +
+  ggtitle("Distribution of durable assets by depressed status and sex") +
+  theme_classic() +
+  theme(plot.title = element_text(face = "bold", hjust = 0.5))
+
+
+
+# Distribution of living expenses by depressed status and sex
+ggplot(depression, aes(x = living_expenses, fill = factor(depressed))) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~ sex, ncol = 1) +
+  scale_fill_discrete(name = "Depressed", labels = c("No", "Yes")) +
+  labs(x = "Living Expenses", y = "Density") +
+  ggtitle("Distribution of living expenses by depressed status and sex") +
+  theme_classic() +
+  theme(plot.title = element_text(face = "bold", hjust = 0.5))
+
+# Distribution of incoming agricultural income by depressed status and sex
+ggplot(depression, aes(x = incoming_agricultural, fill = factor(depressed))) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~ sex, ncol = 1) +
+  scale_fill_discrete(name = "Depressed", labels = c("No", "Yes")) +
+  labs(x = "Incoming Agricultural Income", y = "Density") +
+  ggtitle("Distribution of incoming agricultural income by depressed status and sex") +
+  theme_classic() +
+  theme(plot.title = element_text(face = "bold", hjust = 0.5))
+
+
+```
+
+```{r}
+# Scatterplot of 'Age' and 'Number_children' colored by 'depressed'
+ggplot(depression, aes(x = Age, y = Number_children, color = factor(depressed))) +
+  geom_point() +
+  labs(title = "Age vs Number of Children", x = "Age", y = "Number of Children", color = "Depressed") +
+  theme_minimal()
+
+# Boxplot of 'education_level' colored by 'depressed'
+ggplot(depression, aes(x = factor(depressed), y = education_level, fill = factor(depressed))) +
+  geom_boxplot() +
+  labs(title = "Education Level by Depression Status", x = "Depressed", y = "Education Level", fill = "Depressed") +
+  theme_classic()
+
+# Density plot of 'gained_asset' colored by 'depressed'
+ggplot(depression, aes(x = gained_asset, fill = factor(depressed))) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Density Plot of Gained Asset by Depression Status", x = "Gained Asset", fill = "Depressed") +
+  theme_minimal()
+
+# Barplot of 'incoming_salary' colored by 'depressed'
+ggplot(depression, aes(x = factor(incoming_salary), fill = factor(depressed))) +
+  geom_bar() +
+  labs(title = "Barplot of Incoming Salary by Depression Status", x = "Incoming Salary", fill = "Depressed") +
+  theme_classic()
+
+# Stacked barplot of 'Married' and 'depressed'
+ggplot(depression, aes(x = factor(Married), fill = factor(depressed))) +
+  geom_bar(position = "stack") +
+  labs(title = "Stacked Barplot of Marital Status and Depression Status", x = "Marital Status", fill = "Depressed") +
+  theme_classic()
+
+```
+
+
+## Data Preprocessing
+```{r}
+# Load required packages
+library(mice)
+library(dplyr)
+library(caret)
+library(lme4)
+
+# Drop NAs
+depression <- depression %>%
+  drop_na()
+# Perform data imputation
+depression_imputed <- depression %>%
+  select(-Survey_id) %>%
+  mice(m = 5, maxit = 50, seed = 123) %>%
+  complete()
+
+
+depression_new <- depression
+pred_matrix <- mice::make.predictorMatrix(depression_new)
+imp <- mice(depression_new, m = 5, maxit = 50, seed = 123, predictorMatrix = pred_matrix)
+depression_imputed <- complete(imp)
+
+# Convert factors to numeric variables
+
+depression_imputed$sex <- as.numeric(as.character(depression_imputed$sex))
+depression_imputed$Married <- as.numeric(as.character(depression_imputed$Married))
+depression_imputed$incoming_salary <- as.numeric(as.character(depression_imputed$incoming_salary))
+depression_imputed$depressed <- as.factor(depression_imputed$depressed)
+
+# Feature engineering
+depression_imputed$save_asset_ratio <- depression_imputed$save_asset / depression_imputed$total_members
+depression_imputed$incoming_business_no_business <- depression_imputed$incoming_business + depression_imputed$incoming_no_business
+
+# Scale numeric variables
+num_cols <- c("Age", "Number_children", "education_level", "total_members", "gained_asset", 
+              "durable_asset", "save_asset", "living_expenses", "other_expenses", "incoming_agricultural",
+              "farm_expenses", "lasting_investment", "no_lasting_investmen", "save_asset_ratio",
+              "incoming_business_no_business")
+depression_imputed[num_cols] <- scale(depression_imputed[num_cols])
+
+str(depression_imputed)
+
+
+# Convert depressed variable to factor
+depression_imputed$depressed <- as.factor(depression_imputed$depressed)
+
+# Ensure variables are in correct data type
+
+depression_imputed$sex <- as.factor(depression_imputed$sex)
+depression_imputed$Married <- as.factor(depression_imputed$Married)
+
+depression_imputed$incoming_salary <- as.factor(depression_imputed$incoming_salary)
+depression_imputed$incoming_own_farm <- as.factor(depression_imputed$incoming_own_farm)
+depression_imputed$incoming_business <- as.factor(depression_imputed$incoming_business)
+depression_imputed$incoming_no_business <- as.factor(depression_imputed$incoming_no_business)
+depression_imputed$labor_primary <- as.factor(depression_imputed$labor_primary)
+
+# Create new variable for save_asset_ratio
+depression_imputed$save_asset_ratio <- depression_imputed$save_asset / depression_imputed$gained_asset
+
+
+
+
+
+# Split the data into training and testing sets
+train_index <- createDataPartition(depression_imputed$depressed, p = 0.8, list = FALSE)
+train <- depression_imputed[train_index, ]
+test <- depression_imputed[-train_index, ]
+
+```
+
+
+## GLMM Modeling
+```{r}
+# Train a GLMM model to predict depression
+# model <-  glmer(depressed ~  Age+ total_members+ durable_asset+no_lasting_investmen+education_level + incoming_salary + farm_expenses+ (1 | Ville_id) , data = train, family = binomial())
+model <-  glmer(depressed ~  Age+ total_members+ durable_asset+no_lasting_investmen+education_level + (1 | Ville_id) , data = train, family = binomial())
+
+# Print the model summary
+summary(model)
+
+# Predict on the test set
+probs <- predict(model, type = "response")
+# Plot ROC
+library(pROC)
+roc_curve <- roc(train$depressed, probs)
+auc <- auc(roc_curve)
+plot(roc_curve, main = "ROC Curve", print.auc = TRUE, auc.polygon = TRUE, legacy.axes = TRUE)
+
+
+```
+
+
+
